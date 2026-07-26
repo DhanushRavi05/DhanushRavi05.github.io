@@ -1,53 +1,52 @@
-# Dhanush R — Portfolio Website
+# Dhanush R — Portfolio Website (v2)
 
-Files in this folder:
-- `index.html` — your main website
-- `certificates.js` — certificate data (only you edit this)
-- `admin-add-certificate.html` — local tool to generate certificate code (open it in your browser, don't upload it to the live site)
+## What's new in this version
+- Fullscreen "booting up" terminal animation plays when the site loads
+- Every section (About, Education, Skills, Projects, Certifications, Contact) is now a full-page view with smooth scroll-snap — nav links jump straight to them and highlight as you scroll
+- Certifications split into **Courses Completed** and **Internships**
+- Contact section explicitly invites collaboration/partnership requests
+- Instagram (@iamdhanushhere) added to Contact
+- **Secure owner-only certificate upload** via `admin.html` — see below
 
-## Go live for free in ~5 minutes (GitHub Pages)
+## Files
+- `index.html` — the live website
+- `certificates.json` — certificate data (auto-updated by admin.html, don't hand-edit unless you're comfortable with JSON)
+- `admin.html` — **your private upload tool**. Not linked anywhere on the public site.
 
-Your free URL will be: **`https://dhanushravi05.github.io`**
+## Update your existing repo
+1. Go to your repo: `github.com/DhanushRavi05/DhanushRavi05.github.io`
+2. Upload these 3 files (drag and drop, same as before) — this will replace the old `index.html`
+   and add `certificates.json` + `admin.html`. Commit changes.
+3. Delete the old `certificates.js` and `admin-add-certificate.html` files from the repo if they're still there (open each → trash icon → commit).
+4. Wait 1–2 minutes, refresh `https://dhanushravi05.github.io`
 
-1. Go to https://github.com/DhanushRavi05 (you're already logged in here)
-2. Click **New repository** (top right, `+` icon)
-3. Repository name must be exactly: `DhanushRavi05.github.io`
-   (this special name makes it your main free site — must match your username exactly)
-4. Set it to **Public**, don't add a README, click **Create repository**
-5. On the new repo page, click **uploading an existing file**
-6. Drag and drop `index.html` and `certificates.js` (not the admin tool)
-7. Click **Commit changes**
-8. Go to repo **Settings → Pages** (left sidebar)
-9. Under "Build and deployment", Source: **Deploy from a branch**, Branch: **main** → **Save**
-10. Wait 1–2 minutes, then visit **https://dhanushravi05.github.io** — your site is live!
+## How certificate upload actually works (owner-only, for real)
+Since this is a free static site, there's no login system in the traditional sense — but here's what
+makes it genuinely secure: `admin.html` only works if **you** paste in your own GitHub Personal Access
+Token. Without that exact token, GitHub itself refuses every request — so even if someone finds the
+`admin.html` link, they can't do anything with it.
 
-Anyone with the link can visit and view it. Only you (logged into your GitHub account) can edit files and push changes — that's what keeps you as the sole "owner" of the content.
+### One-time setup: create your token
+1. Go to https://github.com/settings/tokens?type=beta
+2. Click **Generate new token**
+3. Under **Repository access**, choose **Only select repositories** → pick `DhanushRavi05.github.io`
+4. Under **Permissions → Repository permissions**, set **Contents** to **Read and write**
+5. Click **Generate token**
+6. **Copy the token immediately** (starts with `github_pat_...`) — GitHub shows it only once
+7. Save it somewhere private (like a note on your phone) — you'll paste it into `admin.html` each time you want to add a certificate
 
-## Adding a certificate later
+### Adding a certificate
+1. Open `https://dhanushravi05.github.io/admin.html` (bookmark this — it's not in your site's menu)
+2. Paste your token → click **Unlock**
+3. Fill in certificate name, issuer, category (Course/Internship), year, and an optional link
+4. Click **Add Certificate**
+5. Within a minute, it appears live on your site for everyone to see — automatically, no manual file editing needed
 
-1. Open `admin-add-certificate.html` on your own computer (just double-click it, no internet needed)
-2. Fill in certificate name, issuer, year, and link (optional)
-3. Click **Generate Code**, then **Copy**
-4. Go to your GitHub repo → open `certificates.js` → click the pencil (edit) icon
-5. Paste the copied line inside the `window.CERTIFICATES = [ ... ]` array
-6. Commit changes — your live site updates automatically for every visitor
-
-## Adding your LinkedIn later
-
-Open `index.html`, find this line near the Contact section:
-```html
-<!-- LinkedIn card: add once link is shared -->
-```
-Replace it with:
-```html
-<a class="contact-card" href="YOUR_LINKEDIN_URL" target="_blank">
-  <span class="contact-label">LinkedIn</span>
-  <span class="contact-value">View Profile</span>
-</a>
-```
+### Keeping it secure
+- Never share your token with anyone or paste it anywhere except `admin.html`
+- If you ever think it's been exposed, go back to the tokens page and delete/regenerate it
+- The token only stays in your browser tab while it's open — closing the tab clears it
 
 ## Want an actual .com domain later?
-
-`.com` domains are never free (~₹700–900/year from Namecheap or GoDaddy), but once you buy one,
-you can point it to your free GitHub Pages site at no extra hosting cost — just add a `CNAME` file
-in the repo with your domain name. Ask me when you're ready and I'll walk you through it.
+`.com` domains cost around ₹700–900/year (Namecheap, GoDaddy). Once bought, you can point it to this
+same free GitHub Pages site at no extra hosting cost. Ask me when you're ready.

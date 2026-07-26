@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner Panel — Not for public use</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{
+    --bg:#0F1B24;--bg-panel:#182C38;--accent-cyan:#3FB8AF;--accent-amber:#E8A33D;
+    --text-primary:#EDEEF0;--text-muted:#8CA0A8;--border:rgba(63,184,175,0.25);
+  }
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text-primary);font-family:'Segoe UI',sans-serif;max-width:620px;margin:60px auto;padding:0 24px;}
+  h1{font-size:22px;margin-bottom:6px;}
+  p.note{color:var(--text-muted);font-size:14px;margin-bottom:24px;line-height:1.6;}
+  label{display:block;font-size:13px;color:var(--text-muted);margin:16px 0 6px;}
+  input,select{width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border);background:#142530;color:var(--text-primary);font-size:14px;}
+  button{margin-top:20px;background:var(--accent-cyan);color:var(--bg);border:none;padding:12px 20px;border-radius:6px;font-weight:600;cursor:pointer;font-size:14px;}
+  button:disabled{opacity:0.5;cursor:not-allowed;}
+  button.secondary{background:none;border:1px solid var(--border);color:var(--text-primary);}
+  .card{background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;}
+  .status{font-size:13px;margin-top:14px;padding:10px 14px;border-radius:6px;display:none;}
+  .status.ok{display:block;background:rgba(63,184,175,0.12);color:var(--accent-cyan);}
+  .status.err{display:block;background:rgba(232,93,93,0.12);color:#e88;}
+  .status.loading{display:block;background:rgba(232,163,61,0.12);color:var(--accent-amber);}
+  #formArea{display:none;}
+  code{background:#0c161d;padding:2px 6px;border-radius:4px;font-size:12.5px;}
+  a{color:var(--accent-cyan);}
+</style>
+</head>
+<body>
+  <h1>Certificate Upload — Owner Only</h1>
+  <p class="note">
+    This page is not linked anywhere on the public site. It only works if you provide your own
+    GitHub Personal Access Token below — nobody else can use this even if they find the URL,
+    since without your token GitHub will reject every request.
+    Your token is <strong>never saved anywhere</strong> — it only stays in this browser tab and is gone once you close it.
+  </p>
+
+  <div class="card" id="tokenCard">
+    <label>GitHub Personal Access Token</label>
+    <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    <p class="note" style="margin:10px 0 0;">
+      Don't have one? Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a>
+      → Generate new token (fine-grained) → Repository access: only <code>DhanushRavi05.github.io</code>
+      → Permissions: <code>Contents: Read and write</code> → Generate → copy it here.
+    </p>
+    <button onclick="unlock()">Unlock</button>
+    <div class="status" id="tokenStatus"></div>
+  </div>
+
+  <div class="card" id="formArea">
+    <label>Certificate Name</label>
+    <input id="name" placeholder="e.g. Python for Everybody">
+
+    <label>Issued By</label>
+    <input id="issuer" placeholder="e.g. Coursera / Company Name">
+
+    <label>Category</label>
+    <select id="category">
+      <option value="course">Course Completed</option>
+      <option value="internship">Internship</option>
+    </select>
+
+    <label>Year</label>
+    <input id="year" placeholder="e.g. 2026">
+
+    <label>Certificate / Verify Link (optional)</label>
+    <input id="link" placeholder="https://...">
+
+    <button onclick="addCertificate()" id="submitBtn">Add Certificate</button>
+    <div class="status" id="formStatus"></div>
+  </div>
+
+<script>
+  const OWNER = 'DhanushRavi05';
+  const REPO = 'DhanushRavi05.github.io';
+  const FILE_PATH = 'certificates.json';
+  let TOKEN = '';
+
+  function showStatus(el, type, msg){
+    el.className = 'status ' + type;
+    el.textContent = msg;
+  }
+
+  async function unlock(){
+    const tokenInput = document.getElementById('token').value.trim();
+    const statusEl = document.getElementById('tokenStatus');
+    if(!tokenInput){ showStatus(statusEl,'err','Paste your token first.'); return; }
+    showStatus(statusEl,'loading','Checking access...');
+    try{
+      const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
+        headers: { Authorization: `token ${tokenInput}` }
+      });
+      if(!res.ok){
+        showStatus(statusEl,'err','Token rejected or missing write access. Check permissions and try again.');
+        return;
+      }
+      TOKEN = tokenInput;
+      showStatus(statusEl,'ok','Access confirmed. You can add certificates below.');
+      document.getElementById('formArea').style.display = 'block';
+    }catch(err){
+      showStatus(statusEl,'err','Network error: ' + err.message);
+    }
+  }
+
+  async function addCertificate(){
+    const name = document.getElementById('name').value.trim();
+    const issuer = document.getElementById('issuer').value.trim();
+    const category = document.getElementById('category').value;
+    const year = document.getElementById('year').value.trim();
+    const link = document.getElementById('link').value.trim();
+    const statusEl = document.getElementById('formStatus');
+    const btn = document.getElementById('submitBtn');
+
+    if(!name || !issuer || !year){
+      showStatus(statusEl,'err','Name, issuer and year are required.');
+      return;
+    }
+
+    btn.disabled = true;
+    showStatus(statusEl,'loading','Saving to GitHub...');
+
+    try{
+      // 1. get current file + sha
+      const getRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
+        headers: { Authorization: `token ${TOKEN}` }
+      });
+      if(!getRes.ok) throw new Error('Could not read certificates.json');
+      const fileData = await getRes.json();
+      const currentContent = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+
+      // 2. append new cert
+      currentContent.push({ name, issuer, category, year, link });
+
+      // 3. push update
+      const newContentB64 = btoa(unescape(encodeURIComponent(JSON.stringify(currentContent, null, 2))));
+      const putRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
+        method: 'PUT',
+        headers: { Authorization: `token ${TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `Add certificate: ${name}`,
+          content: newContentB64,
+          sha: fileData.sha,
+          branch: 'main'
+        })
+      });
+      if(!putRes.ok){
+        const errData = await putRes.json().catch(()=>({}));
+        throw new Error(errData.message || 'Update failed');
+      }
+
+      showStatus(statusEl,'ok','Added! It will appear on your live site within a minute.');
+      document.getElementById('name').value = '';
+      document.getElementById('issuer').value = '';
+      document.getElementById('year').value = '';
+      document.getElementById('link').value = '';
+    }catch(err){
+      showStatus(statusEl,'err','Error: ' + err.message);
+    }finally{
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

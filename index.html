@@ -142,6 +142,23 @@
   .cert-link{color:var(--accent-cyan);}
   .cert-empty{grid-column:1/-1;text-align:center;padding:36px 24px;color:var(--text-muted);border:1px dashed var(--border);border-radius:10px;font-size:13.5px;}
 
+  .owner-zone{margin-top:28px;text-align:right;}
+  .owner-link{background:none;border:none;color:var(--text-muted);font-family:var(--mono);font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px;}
+  .owner-link:hover{color:var(--accent-cyan);}
+  .owner-panel{display:none;text-align:left;background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:22px;margin-top:14px;max-width:420px;margin-left:auto;}
+  .owner-panel.open{display:block;}
+  .owner-panel label{display:block;font-family:var(--mono);font-size:12px;color:var(--text-muted);margin:12px 0 6px;}
+  .owner-panel label:first-child{margin-top:0;}
+  .owner-panel input,.owner-panel select{width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-alt);color:var(--text-primary);font-size:13.5px;font-family:var(--body-font);}
+  .owner-panel input[type=file]{font-family:var(--mono);font-size:12px;padding:8px;}
+  .btn-owner{margin-top:16px;width:100%;background:var(--accent-cyan);color:var(--bg);border:none;padding:11px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13.5px;}
+  .btn-owner:disabled{opacity:0.5;cursor:not-allowed;}
+  .owner-status{font-family:var(--mono);font-size:12px;margin-top:10px;min-height:16px;}
+  .owner-status.ok{color:var(--accent-cyan);}
+  .owner-status.err{color:#e88;}
+  .owner-status.loading{color:var(--accent-amber);}
+  .owner-logout{margin-top:14px;background:none;border:none;color:var(--text-muted);font-size:11px;text-decoration:underline;cursor:pointer;}
+
   .contact-note{color:var(--text-muted);font-size:15px;max-width:600px;margin-bottom:28px;}
   .contact-note strong{color:var(--text-primary);}
   .contact-row{display:flex;gap:14px;flex-wrap:wrap;}
@@ -265,6 +282,36 @@
       <div class="cert-subhead">Internships</div>
       <div class="cert-grid" id="certGridIntern"></div>
     </div>
+
+    <div class="owner-zone">
+      <button id="ownerToggle" class="owner-link" type="button">Owner? Add a certificate</button>
+      <div id="ownerPanel" class="owner-panel">
+        <div id="keyGate">
+          <label>Owner Key</label>
+          <input type="password" id="ownerKey" placeholder="Paste your owner key">
+          <button type="button" class="btn-owner" onclick="unlockOwner()">Unlock</button>
+          <div class="owner-status" id="keyStatus"></div>
+        </div>
+        <div id="uploadForm" style="display:none;">
+          <label>Certificate Name</label>
+          <input id="certName" placeholder="e.g. Python for Everybody">
+          <label>Issued By</label>
+          <input id="certIssuer" placeholder="e.g. Coursera / Company Name">
+          <label>Category</label>
+          <select id="certCategory">
+            <option value="course">Course Completed</option>
+            <option value="internship">Internship</option>
+          </select>
+          <label>Year</label>
+          <input id="certYear" placeholder="e.g. 2026">
+          <label>Certificate Image or PDF</label>
+          <input type="file" id="certFile" accept="image/*,.pdf">
+          <button type="button" class="btn-owner" onclick="uploadCertificate()" id="uploadBtn">Upload Certificate</button>
+          <div class="owner-status" id="uploadStatus"></div>
+          <button type="button" class="owner-logout" onclick="ownerLogout()">Log out of owner mode on this device</button>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -354,6 +401,137 @@
   sections.forEach(s=> observer.observe(s));
 
   fetch('certificates.json').then(r=>r.json()).then(renderCerts).catch(()=>renderCerts([]));
+
+  // ===== owner-only certificate upload =====
+  const GH_OWNER = 'DhanushRavi05';
+  const GH_REPO = 'DhanushRavi05.github.io';
+  let ownerKey = localStorage.getItem('ownerKey') || '';
+
+  const ownerToggle = document.getElementById('ownerToggle');
+  const ownerPanel = document.getElementById('ownerPanel');
+  const keyGate = document.getElementById('keyGate');
+  const uploadFormEl = document.getElementById('uploadForm');
+  const keyStatus = document.getElementById('keyStatus');
+
+  ownerToggle.addEventListener('click', async ()=>{
+    ownerPanel.classList.toggle('open');
+    if(ownerPanel.classList.contains('open') && ownerKey){
+      setStatus(keyStatus,'loading','Checking saved key...');
+      const ok = await validateKey(ownerKey);
+      if(ok){
+        keyGate.style.display='none';
+        uploadFormEl.style.display='block';
+        setStatus(keyStatus,'','');
+      } else {
+        localStorage.removeItem('ownerKey');
+        ownerKey='';
+        setStatus(keyStatus,'err','Saved key no longer works, enter it again.');
+      }
+    }
+  });
+
+  function setStatus(el, type, msg){
+    el.className = 'owner-status' + (type ? ' '+type : '');
+    el.textContent = msg;
+  }
+
+  async function validateKey(key){
+    try{
+      const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/certificates.json`, { headers:{ Authorization:`token ${key}` } });
+      return res.ok;
+    }catch(e){ return false; }
+  }
+
+  window.unlockOwner = async function(){
+    const input = document.getElementById('ownerKey').value.trim();
+    if(!input){ setStatus(keyStatus,'err','Paste your owner key first.'); return; }
+    setStatus(keyStatus,'loading','Checking...');
+    const ok = await validateKey(input);
+    if(ok){
+      ownerKey = input;
+      localStorage.setItem('ownerKey', input);
+      keyGate.style.display='none';
+      uploadFormEl.style.display='block';
+      setStatus(keyStatus,'','');
+    } else {
+      setStatus(keyStatus,'err','That key did not work. Check it and try again.');
+    }
+  };
+
+  window.ownerLogout = function(){
+    localStorage.removeItem('ownerKey');
+    ownerKey='';
+    uploadFormEl.style.display='none';
+    keyGate.style.display='block';
+    document.getElementById('ownerKey').value='';
+    setStatus(keyStatus,'','Logged out on this device.');
+  };
+
+  function fileToBase64(file){
+    return new Promise((resolve,reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=> resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  window.uploadCertificate = async function(){
+    const name = document.getElementById('certName').value.trim();
+    const issuer = document.getElementById('certIssuer').value.trim();
+    const category = document.getElementById('certCategory').value;
+    const year = document.getElementById('certYear').value.trim();
+    const file = document.getElementById('certFile').files[0];
+    const uploadStatus = document.getElementById('uploadStatus');
+    const btn = document.getElementById('uploadBtn');
+
+    if(!name || !issuer || !year){
+      setStatus(uploadStatus,'err','Name, issuer and year are required.');
+      return;
+    }
+
+    btn.disabled = true;
+    try{
+      let link = '';
+      if(file){
+        setStatus(uploadStatus,'loading','Uploading file...');
+        const base64 = await fileToBase64(file);
+        const safeName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
+        const filePath = `certs/${safeName}`;
+        const putFileRes = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${filePath}`, {
+          method:'PUT',
+          headers:{ Authorization:`token ${ownerKey}`, 'Content-Type':'application/json' },
+          body: JSON.stringify({ message:`Add certificate file: ${file.name}`, content: base64, branch:'main' })
+        });
+        if(!putFileRes.ok){ const e = await putFileRes.json().catch(()=>({})); throw new Error(e.message || 'File upload failed'); }
+        link = filePath;
+      }
+
+      setStatus(uploadStatus,'loading','Saving certificate details...');
+      const getRes = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/certificates.json`, { headers:{ Authorization:`token ${ownerKey}` } });
+      if(!getRes.ok) throw new Error('Could not read certificates.json');
+      const fileData = await getRes.json();
+      const currentContent = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+      currentContent.push({ name, issuer, category, year, link });
+      const newContentB64 = btoa(unescape(encodeURIComponent(JSON.stringify(currentContent, null, 2))));
+      const putRes = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/certificates.json`, {
+        method:'PUT',
+        headers:{ Authorization:`token ${ownerKey}`, 'Content-Type':'application/json' },
+        body: JSON.stringify({ message:`Add certificate: ${name}`, content:newContentB64, sha:fileData.sha, branch:'main' })
+      });
+      if(!putRes.ok){ const e = await putRes.json().catch(()=>({})); throw new Error(e.message || 'Update failed'); }
+
+      setStatus(uploadStatus,'ok','Added! It will appear on this page within a minute (refresh to see it).');
+      document.getElementById('certName').value='';
+      document.getElementById('certIssuer').value='';
+      document.getElementById('certYear').value='';
+      document.getElementById('certFile').value='';
+    }catch(err){
+      setStatus(uploadStatus,'err','Error: ' + err.message);
+    }finally{
+      btn.disabled = false;
+    }
+  };
 
   function renderCerts(certs){
     const courses = certs.filter(c=> c.category !== 'internship');

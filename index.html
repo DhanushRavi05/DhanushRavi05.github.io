@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dhanush R — B.Tech AI & DS Student | Developer</title>
+<meta name="description" content="Dhanush R — B.Tech AI & Data Science student, building AI Resume Analyzer and other projects.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1B24;
+    --bg-alt:#142530;
+    --bg-panel:#182C38;
+    --accent-cyan:#3FB8AF;
+    --accent-cyan-dim:rgba(63,184,175,0.15);
+    --accent-amber:#E8A33D;
+    --text-primary:#EDEEF0;
+    --text-muted:#8CA0A8;
+    --border:rgba(63,184,175,0.22);
+    --mono:'JetBrains Mono', monospace;
+    --display:'Space Grotesk', sans-serif;
+    --body-font:'Inter', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text-primary);
+    font-family:var(--body-font);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px;}
+
+  /* background scan grid */
+  .grid-bg{
+    position:fixed;inset:0;z-index:-1;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size:48px 48px;
+    opacity:0.12;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  }
+
+  /* NAV */
+  nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(10px);
+    background:rgba(15,27,36,0.75);
+    border-bottom:1px solid var(--border);
+  }
+  nav .wrap{display:flex;justify-content:space-between;align-items:center;height:64px;}
+  .logo{font-family:var(--mono);font-size:15px;color:var(--accent-cyan);letter-spacing:0.5px;}
+  .logo span{color:var(--text-muted);}
+  .navlinks{display:flex;gap:28px;font-size:14px;color:var(--text-muted);}
+  .navlinks a:hover{color:var(--accent-cyan);}
+  .navtoggle{display:none;background:none;border:none;color:var(--text-primary);font-size:22px;cursor:pointer;}
+  @media(max-width:640px){
+    .navlinks{position:fixed;top:64px;left:0;right:0;background:var(--bg-alt);flex-direction:column;padding:20px 24px;gap:16px;border-bottom:1px solid var(--border);transform:translateY(-150%);transition:transform .3s ease;}
+    .navlinks.open{transform:translateY(0);}
+    .navtoggle{display:block;}
+  }
+
+  /* HERO */
+  .hero{padding:90px 0 70px;}
+  .eyebrow{
+    font-family:var(--mono);font-size:13px;color:var(--accent-cyan);
+    display:flex;align-items:center;gap:10px;margin-bottom:22px;
+  }
+  .eyebrow::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent-cyan);box-shadow:0 0 8px var(--accent-cyan);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+  .hero h1{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(2.4rem, 6vw, 4rem);
+    line-height:1.05;letter-spacing:-0.02em;
+    margin-bottom:20px;
+  }
+  .hero h1 .accent{color:var(--accent-cyan);}
+  .hero p.tagline{
+    font-size:18px;color:var(--text-muted);max-width:540px;margin-bottom:36px;
+  }
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:56px;}
+  .btn{
+    font-family:var(--mono);font-size:13px;padding:12px 22px;border-radius:6px;
+    border:1px solid var(--border);transition:all .2s ease;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary{background:var(--accent-cyan);color:var(--bg);border-color:var(--accent-cyan);font-weight:500;}
+  .btn-primary:hover{background:#57c9c1;}
+  .btn-ghost:hover{border-color:var(--accent-cyan);color:var(--accent-cyan);}
+
+  /* TERMINAL PANEL — signature element */
+  .terminal{
+    background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;
+    overflow:hidden;box-shadow:0 20px 60px -20px rgba(0,0,0,0.6);
+  }
+  .terminal-head{
+    display:flex;align-items:center;gap:8px;padding:12px 16px;
+    background:var(--bg-alt);border-bottom:1px solid var(--border);
+  }
+  .dot{width:10px;height:10px;border-radius:50%;}
+  .dot:nth-child(1){background:#E85D5D;}
+  .dot:nth-child(2){background:var(--accent-amber);}
+  .dot:nth-child(3){background:var(--accent-cyan);}
+  .terminal-title{margin-left:8px;font-family:var(--mono);font-size:12px;color:var(--text-muted);}
+  .terminal-body{padding:24px 28px;font-family:var(--mono);font-size:14px;line-height:1.9;min-height:210px;}
+  .terminal-body .line{opacity:0;animation:fadeIn .4s forwards;}
+  .terminal-body .prompt{color:var(--accent-cyan);}
+  .terminal-body .key{color:var(--text-muted);}
+  .terminal-body .val{color:var(--text-primary);font-weight:500;}
+  .terminal-body .tag{color:var(--accent-amber);}
+  .cursor{display:inline-block;width:8px;height:16px;background:var(--accent-cyan);vertical-align:middle;animation:blink 1s step-end infinite;}
+  @keyframes fadeIn{to{opacity:1;}}
+  @keyframes blink{50%{opacity:0;}}
+
+  @media(prefers-reduced-motion:reduce){
+    .terminal-body .line{animation:none;opacity:1;}
+    .cursor{animation:none;}
+    .eyebrow::before{animation:none;}
+  }
+
+  /* SECTIONS */
+  section{padding:70px 0;border-top:1px solid var(--border);}
+  .section-label{
+    font-family:var(--mono);font-size:13px;color:var(--accent-cyan);margin-bottom:8px;
+  }
+  h2{font-family:var(--display);font-size:clamp(1.5rem,3.5vw,2.1rem);font-weight:600;margin-bottom:36px;}
+
+  /* ABOUT */
+  .about-text{max-width:640px;color:var(--text-muted);font-size:16px;}
+  .about-text strong{color:var(--text-primary);}
+
+  /* EDUCATION TIMELINE */
+  .timeline{position:relative;padding-left:32px;}
+  .timeline::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:var(--border);}
+  .tl-item{position:relative;margin-bottom:36px;}
+  .tl-item:last-child{margin-bottom:0;}
+  .tl-item::before{
+    content:'';position:absolute;left:-32px;top:4px;width:15px;height:15px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--accent-cyan);
+  }
+  .tl-item.current::before{background:var(--accent-cyan);box-shadow:0 0 10px var(--accent-cyan);}
+  .tl-stage{font-family:var(--mono);font-size:12px;color:var(--accent-amber);margin-bottom:4px;}
+  .tl-title{font-weight:600;font-size:17px;margin-bottom:2px;}
+  .tl-sub{color:var(--text-muted);font-size:14px;}
+
+  /* SKILLS */
+  .skill-group{margin-bottom:28px;}
+  .skill-group h3{font-family:var(--mono);font-size:13px;color:var(--text-muted);font-weight:400;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px;}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;}
+  .chip{
+    font-family:var(--mono);font-size:13px;padding:8px 14px;border-radius:20px;
+    border:1px solid var(--border);background:var(--accent-cyan-dim);color:var(--text-primary);
+  }
+  .chip.lang{background:rgba(232,163,61,0.12);border-color:rgba(232,163,61,0.3);}
+
+  /* PROJECTS */
+  .project-card{
+    background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;
+    padding:28px;transition:border-color .2s ease, transform .2s ease;
+  }
+  .project-card:hover{border-color:var(--accent-cyan);transform:translateY(-2px);}
+  .project-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:12px;}
+  .project-title{font-family:var(--display);font-size:20px;font-weight:600;}
+  .project-status{font-family:var(--mono);font-size:11px;color:var(--accent-amber);border:1px solid rgba(232,163,61,0.4);padding:3px 10px;border-radius:20px;white-space:nowrap;}
+  .project-desc{color:var(--text-muted);font-size:15px;margin-bottom:18px;max-width:600px;}
+  .project-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+  .tag{font-family:var(--mono);font-size:12px;color:var(--accent-cyan);background:var(--accent-cyan-dim);padding:4px 10px;border-radius:5px;}
+  .project-links a{font-family:var(--mono);font-size:13px;color:var(--text-primary);border-bottom:1px solid var(--accent-cyan);padding-bottom:2px;}
+  .project-links a:hover{color:var(--accent-cyan);}
+
+  /* CERTIFICATIONS */
+  .cert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
+  .cert-card{
+    background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:20px;
+  }
+  .cert-name{font-weight:600;font-size:15px;margin-bottom:4px;}
+  .cert-issuer{color:var(--text-muted);font-size:13px;margin-bottom:10px;}
+  .cert-year{font-family:var(--mono);font-size:12px;color:var(--accent-amber);}
+  .cert-empty{
+    grid-column:1/-1;text-align:center;padding:48px 24px;color:var(--text-muted);
+    border:1px dashed var(--border);border-radius:10px;font-size:14px;
+  }
+  .cert-empty span{display:block;font-family:var(--mono);font-size:13px;color:var(--accent-cyan);margin-top:8px;}
+
+  /* CONTACT */
+  .contact-row{display:flex;gap:16px;flex-wrap:wrap;}
+  .contact-card{
+    flex:1;min-width:220px;background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;
+    padding:22px;display:flex;flex-direction:column;gap:6px;transition:border-color .2s ease;
+  }
+  .contact-card:hover{border-color:var(--accent-cyan);}
+  .contact-label{font-family:var(--mono);font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
+  .contact-value{font-size:15px;font-weight:500;word-break:break-word;}
+
+  footer{padding:32px 0;text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:12px;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="logo">dhanush<span>.r</span></div>
+    <div class="navlinks" id="navlinks">
+      <a href="#about">About</a>
+      <a href="#education">Education</a>
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#certifications">Certifications</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <button class="navtoggle" id="navtoggle" aria-label="Toggle menu">&#9776;</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">3RD YEAR &middot; B.TECH AI &amp; DATA SCIENCE</div>
+    <h1>Dhanush R builds systems that<br><span class="accent">read, learn &amp; decide.</span></h1>
+    <p class="tagline">Currently developing an AI Resume Analyzer, learning Java, and going deeper into Python &amp; MySQL — one project at a time.</p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary">View Projects</a>
+      <a href="https://github.com/DhanushRavi05" target="_blank" class="btn btn-ghost">GitHub &#8599;</a>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-head">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="terminal-title">resume_analyzer.py — output</div>
+      </div>
+      <div class="terminal-body" id="termBody"></div>
+    </div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-label">// 01</div>
+    <h2>About</h2>
+    <p class="about-text">
+      I'm <strong>Dhanush R</strong>, currently in my <strong>3rd year of B.Tech in Artificial Intelligence &amp; Data Science</strong>.
+      I came up through Higher Secondary and a Diploma before this, and now I'm focused on building real things —
+      not just studying theory. My first shipped project, the <strong>AI Resume Analyzer</strong>, is on GitHub.
+      I'm actively picking up <strong>Java</strong>, sharpening <strong>Python</strong>, and I'm already solid in <strong>MySQL</strong>.
+      Always looking for the next thing to learn and the next thing to build.
+    </p>
+  </div>
+</section>
+
+<section id="education">
+  <div class="wrap">
+    <div class="section-label">// 02</div>
+    <h2>Education Path</h2>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-stage">STAGE 01</div>
+        <div class="tl-title">Higher Secondary Education</div>
+        <div class="tl-sub">Completed</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-stage">STAGE 02</div>
+        <div class="tl-title">Diploma</div>
+        <div class="tl-sub">Completed</div>
+      </div>
+      <div class="tl-item current">
+        <div class="tl-stage">STAGE 03 &middot; IN PROGRESS</div>
+        <div class="tl-title">B.Tech — Artificial Intelligence &amp; Data Science</div>
+        <div class="tl-sub">3rd Year</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <div class="section-label">// 03</div>
+    <h2>Skills</h2>
+    <div class="skill-group">
+      <h3>Programming &amp; Tools</h3>
+      <div class="chips">
+        <span class="chip">Java (learning)</span>
+        <span class="chip">Python</span>
+        <span class="chip">MySQL</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <h3>Languages Spoken</h3>
+      <div class="chips">
+        <span class="chip lang">Tamil</span>
+        <span class="chip lang">English</span>
+        <span class="chip lang">Malayalam</span>
+        <span class="chip lang">Hindi</span>
+        <span class="chip lang">Kannada</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="section-label">// 04</div>
+    <h2>Projects</h2>
+    <div class="project-card">
+      <div class="project-top">
+        <div class="project-title">AI Resume Analyzer</div>
+        <div class="project-status">Active Development</div>
+      </div>
+      <p class="project-desc">
+        A tool that reads and evaluates resumes automatically — parsing content and surfacing insights to help
+        understand a candidate's profile at a glance. First major project, built and maintained solo.
+      </p>
+      <div class="project-tags">
+        <span class="tag">Python</span>
+        <span class="tag">AI/NLP</span>
+      </div>
+      <div class="project-links">
+        <a href="https://github.com/DhanushRavi05" target="_blank">View on GitHub &#8599;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="certifications">
+  <div class="wrap">
+    <div class="section-label">// 05</div>
+    <h2>Certifications</h2>
+    <div class="cert-grid" id="certGrid">
+      <!-- populated by certificates.js -->
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="section-label">// 06</div>
+    <h2>Contact</h2>
+    <div class="contact-row">
+      <a class="contact-card" href="mailto:dhanushravi1485@gmail.com">
+        <span class="contact-label">Email</span>
+        <span class="contact-value">dhanushravi1485@gmail.com</span>
+      </a>
+      <a class="contact-card" href="https://github.com/DhanushRavi05" target="_blank">
+        <span class="contact-label">GitHub</span>
+        <span class="contact-value">github.com/DhanushRavi05</span>
+      </a>
+      <!-- LinkedIn card: add once link is shared -->
+    </div>
+  </div>
+</section>
+
+<footer>
+  &copy; 2026 Dhanush R &middot; Built &amp; maintained solo
+</footer>
+
+<script src="certificates.js"></script>
+<script>
+  // mobile nav toggle
+  document.getElementById('navtoggle').addEventListener('click', function(){
+    document.getElementById('navlinks').classList.toggle('open');
+  });
+
+  // terminal typing sequence
+  const lines = [
+    {html:'<span class="prompt">$</span> <span class="key">analyzing_candidate</span> --profile'},
+    {html:'<span class="key">name</span>       : <span class="val">Dhanush R</span>'},
+    {html:'<span class="key">program</span>    : <span class="val">B.Tech, AI &amp; Data Science</span>'},
+    {html:'<span class="key">year</span>       : <span class="val">3rd Year</span>'},
+    {html:'<span class="key">building</span>   : <span class="val">AI Resume Analyzer</span> <span class="tag">[active]</span>'},
+    {html:'<span class="key">learning</span>   : <span class="val">Java</span>, <span class="val">Python</span>, <span class="val">MySQL</span>'},
+    {html:'<span class="key">languages</span>  : <span class="val">5 spoken</span> <span class="tag">TA/EN/ML/HI/KN</span>'},
+    {html:'<span class="prompt">$</span> status: <span class="val">open to opportunities</span><span class="cursor"></span>'}
+  ];
+  const body = document.getElementById('termBody');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function typeLines(){
+    lines.forEach((l, i) => {
+      const div = document.createElement('div');
+      div.className = 'line';
+      div.innerHTML = l.html;
+      div.style.animationDelay = reduced ? '0s' : (i * 0.28) + 's';
+      body.appendChild(div);
+    });
+  }
+  typeLines();
+
+  // populate certificates from certificates.js (window.CERTIFICATES array)
+  function renderCerts(){
+    const grid = document.getElementById('certGrid');
+    const certs = window.CERTIFICATES || [];
+    if(certs.length === 0){
+      grid.innerHTML = '<div class="cert-empty">No certificates added yet.<span>Owner: add entries in certificates.js — see admin-add-certificate.html</span></div>';
+      return;
+    }
+    grid.innerHTML = certs.map(c => `
+      <div class="cert-card">
+        <div class="cert-name">${c.name}</div>
+        <div class="cert-issuer">${c.issuer}</div>
+        <div class="cert-year">${c.year}${c.link ? ' &middot; <a href="'+c.link+'" target="_blank" style="color:var(--accent-cyan)">view</a>' : ''}</div>
+      </div>
+    `).join('');
+  }
+  renderCerts();
+</script>
+</body>
+</html>

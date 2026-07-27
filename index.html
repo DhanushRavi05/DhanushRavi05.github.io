@@ -7,168 +7,7 @@
 <meta name="description" content="Dhanush R — B.Tech AI & Data Science student, building AI Resume Analyzer and other projects.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0F1B24;
-    --bg-alt:#142530;
-    --bg-panel:#182C38;
-    --accent-cyan:#3FB8AF;
-    --accent-cyan-dim:rgba(63,184,175,0.15);
-    --accent-amber:#E8A33D;
-    --text-primary:#EDEEF0;
-    --text-muted:#8CA0A8;
-    --border:rgba(63,184,175,0.22);
-    --mono:'JetBrains Mono', monospace;
-    --display:'Space Grotesk', sans-serif;
-    --body-font:'Inter', sans-serif;
-    --nav-h:64px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  html{scroll-behavior:smooth;scroll-snap-type:y proximity;}
-  body{background:var(--bg);color:var(--text-primary);font-family:var(--body-font);line-height:1.6;overflow-x:hidden;}
-  body.locked{overflow:hidden;height:100vh;}
-  a{color:inherit;text-decoration:none;}
-  .wrap{max-width:960px;margin:0 auto;padding:0 24px;width:100%;}
-
-  .grid-bg{
-    position:fixed;inset:0;z-index:-1;
-    background-image:linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size:48px 48px;opacity:0.12;
-    mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
-  }
-
-  #introOverlay{
-    position:fixed;inset:0;z-index:9999;background:var(--bg);
-    display:flex;align-items:center;justify-content:center;padding:24px;
-    transition:opacity .6s ease;
-  }
-  #introOverlay.fade-out{opacity:0;pointer-events:none;}
-  .intro-terminal{width:100%;max-width:640px;background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 30px 80px -20px rgba(0,0,0,0.7);}
-  .intro-terminal .terminal-head{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--bg-alt);border-bottom:1px solid var(--border);}
-  .intro-terminal .terminal-body{padding:26px 28px;font-family:var(--mono);font-size:14px;line-height:2;min-height:230px;}
-  .intro-skip{position:fixed;bottom:26px;right:26px;z-index:10000;font-family:var(--mono);font-size:12px;color:var(--text-muted);border:1px solid var(--border);padding:8px 16px;border-radius:20px;background:rgba(15,27,36,0.6);cursor:pointer;}
-  .intro-skip:hover{color:var(--accent-cyan);border-color:var(--accent-cyan);}
-
-  nav{position:sticky;top:0;z-index:50;height:var(--nav-h);backdrop-filter:blur(10px);background:rgba(15,27,36,0.8);border-bottom:1px solid var(--border);}
-  nav .wrap{display:flex;justify-content:space-between;align-items:center;height:100%;}
-  .logo{font-family:var(--mono);font-size:15px;color:var(--accent-cyan);letter-spacing:0.5px;}
-  .logo span{color:var(--text-muted);}
-  .navlinks{display:flex;gap:26px;font-size:13.5px;color:var(--text-muted);}
-  .navlinks a{position:relative;padding:4px 0;}
-  .navlinks a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:var(--accent-cyan);transition:width .25s ease;}
-  .navlinks a:hover{color:var(--text-primary);}
-  .navlinks a.active{color:var(--accent-cyan);}
-  .navlinks a.active::after{width:100%;}
-  .navtoggle{display:none;background:none;border:none;color:var(--text-primary);font-size:22px;cursor:pointer;}
-  @media(max-width:680px){
-    .navlinks{position:fixed;top:var(--nav-h);left:0;right:0;background:var(--bg-alt);flex-direction:column;padding:20px 24px;gap:16px;border-bottom:1px solid var(--border);transform:translateY(-150%);transition:transform .3s ease;}
-    .navlinks.open{transform:translateY(0);}
-    .navtoggle{display:block;}
-  }
-
-  section{min-height:calc(100vh - var(--nav-h));display:flex;flex-direction:column;justify-content:center;padding:56px 0;border-top:1px solid var(--border);scroll-snap-align:start;scroll-margin-top:var(--nav-h);}
-  #hero{border-top:none;}
-  .section-label{font-family:var(--mono);font-size:13px;color:var(--accent-cyan);margin-bottom:8px;}
-  h2{font-family:var(--display);font-size:clamp(1.5rem,3.5vw,2.1rem);font-weight:600;margin-bottom:32px;}
-
-  .eyebrow{font-family:var(--mono);font-size:13px;color:var(--accent-cyan);display:flex;align-items:center;gap:10px;margin-bottom:20px;}
-  .eyebrow::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent-cyan);box-shadow:0 0 8px var(--accent-cyan);animation:pulse 2s infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-  .hero h1{font-family:var(--display);font-weight:700;font-size:clamp(2.2rem,6vw,3.8rem);line-height:1.05;letter-spacing:-0.02em;margin-bottom:18px;}
-  .hero h1 .accent{color:var(--accent-cyan);}
-  .hero p.tagline{font-size:17px;color:var(--text-muted);max-width:540px;margin-bottom:30px;}
-  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:44px;}
-  .btn{font-family:var(--mono);font-size:13px;padding:12px 22px;border-radius:6px;border:1px solid var(--border);transition:all .2s ease;display:inline-flex;align-items:center;gap:8px;}
-  .btn-primary{background:var(--accent-cyan);color:var(--bg);border-color:var(--accent-cyan);font-weight:500;}
-  .btn-primary:hover{background:#57c9c1;}
-  .btn-ghost:hover{border-color:var(--accent-cyan);color:var(--accent-cyan);}
-
-  .terminal{background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 20px 60px -20px rgba(0,0,0,0.6);}
-  .terminal-head{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--bg-alt);border-bottom:1px solid var(--border);}
-  .dot{width:10px;height:10px;border-radius:50%;}
-  .dot:nth-child(1){background:#E85D5D;}
-  .dot:nth-child(2){background:var(--accent-amber);}
-  .dot:nth-child(3){background:var(--accent-cyan);}
-  .terminal-title{margin-left:8px;font-family:var(--mono);font-size:12px;color:var(--text-muted);}
-  .terminal-body{padding:22px 26px;font-family:var(--mono);font-size:13.5px;line-height:1.9;}
-  .terminal-body .line{opacity:0;animation:fadeIn .4s forwards;}
-  .terminal-body .prompt{color:var(--accent-cyan);}
-  .terminal-body .key{color:var(--text-muted);}
-  .terminal-body .val{color:var(--text-primary);font-weight:500;}
-  .terminal-body .tag{color:var(--accent-amber);}
-  .cursor{display:inline-block;width:8px;height:16px;background:var(--accent-cyan);vertical-align:middle;animation:blink 1s step-end infinite;}
-  @keyframes fadeIn{to{opacity:1;}}
-  @keyframes blink{50%{opacity:0;}}
-  @media(prefers-reduced-motion:reduce){.terminal-body .line{animation:none;opacity:1;}.cursor{animation:none;}.eyebrow::before{animation:none;}}
-
-  .about-text{max-width:640px;color:var(--text-muted);font-size:16px;}
-  .about-text strong{color:var(--text-primary);}
-
-  .timeline{position:relative;padding-left:32px;}
-  .timeline::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:var(--border);}
-  .tl-item{position:relative;margin-bottom:32px;}
-  .tl-item:last-child{margin-bottom:0;}
-  .tl-item::before{content:'';position:absolute;left:-32px;top:4px;width:15px;height:15px;border-radius:50%;background:var(--bg);border:2px solid var(--accent-cyan);}
-  .tl-item.current::before{background:var(--accent-cyan);box-shadow:0 0 10px var(--accent-cyan);}
-  .tl-stage{font-family:var(--mono);font-size:12px;color:var(--accent-amber);margin-bottom:4px;}
-  .tl-title{font-weight:600;font-size:17px;margin-bottom:2px;}
-  .tl-sub{color:var(--text-muted);font-size:14px;}
-
-  .skill-group{margin-bottom:24px;}
-  .skill-group h3{font-family:var(--mono);font-size:13px;color:var(--text-muted);font-weight:400;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px;}
-  .chips{display:flex;flex-wrap:wrap;gap:10px;}
-  .chip{font-family:var(--mono);font-size:13px;padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:var(--accent-cyan-dim);color:var(--text-primary);}
-  .chip.lang{background:rgba(232,163,61,0.12);border-color:rgba(232,163,61,0.3);}
-
-  .project-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:26px;transition:border-color .2s ease, transform .2s ease;}
-  .project-card:hover{border-color:var(--accent-cyan);transform:translateY(-2px);}
-  .project-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:12px;}
-  .project-title{font-family:var(--display);font-size:19px;font-weight:600;}
-  .project-status{font-family:var(--mono);font-size:11px;color:var(--accent-amber);border:1px solid rgba(232,163,61,0.4);padding:3px 10px;border-radius:20px;white-space:nowrap;}
-  .project-desc{color:var(--text-muted);font-size:15px;margin-bottom:16px;max-width:600px;}
-  .project-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
-  .tag{font-family:var(--mono);font-size:12px;color:var(--accent-cyan);background:var(--accent-cyan-dim);padding:4px 10px;border-radius:5px;}
-  .project-links a{font-family:var(--mono);font-size:13px;color:var(--text-primary);border-bottom:1px solid var(--accent-cyan);padding-bottom:2px;}
-  .project-links a:hover{color:var(--accent-cyan);}
-
-  .cert-subhead{font-family:var(--mono);font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin:0 0 14px;}
-  .cert-group{margin-bottom:30px;}
-  .cert-group:last-child{margin-bottom:0;}
-  .cert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
-  .cert-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:18px;}
-  .cert-name{font-weight:600;font-size:15px;margin-bottom:4px;}
-  .cert-issuer{color:var(--text-muted);font-size:13px;margin-bottom:10px;}
-  .cert-year{font-family:var(--mono);font-size:12px;color:var(--accent-amber);}
-  .cert-link{color:var(--accent-cyan);}
-  .cert-empty{grid-column:1/-1;text-align:center;padding:36px 24px;color:var(--text-muted);border:1px dashed var(--border);border-radius:10px;font-size:13.5px;}
-
-  .owner-zone{margin-top:28px;text-align:right;}
-  .owner-link{background:none;border:none;color:var(--text-muted);font-family:var(--mono);font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px;}
-  .owner-link:hover{color:var(--accent-cyan);}
-  .owner-panel{display:none;text-align:left;background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:22px;margin-top:14px;max-width:420px;margin-left:auto;}
-  .owner-panel.open{display:block;}
-  .owner-panel label{display:block;font-family:var(--mono);font-size:12px;color:var(--text-muted);margin:12px 0 6px;}
-  .owner-panel label:first-child{margin-top:0;}
-  .owner-panel input,.owner-panel select{width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-alt);color:var(--text-primary);font-size:13.5px;font-family:var(--body-font);}
-  .owner-panel input[type=file]{font-family:var(--mono);font-size:12px;padding:8px;}
-  .btn-owner{margin-top:16px;width:100%;background:var(--accent-cyan);color:var(--bg);border:none;padding:11px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13.5px;}
-  .btn-owner:disabled{opacity:0.5;cursor:not-allowed;}
-  .owner-status{font-family:var(--mono);font-size:12px;margin-top:10px;min-height:16px;}
-  .owner-status.ok{color:var(--accent-cyan);}
-  .owner-status.err{color:#e88;}
-  .owner-status.loading{color:var(--accent-amber);}
-  .owner-logout{margin-top:14px;background:none;border:none;color:var(--text-muted);font-size:11px;text-decoration:underline;cursor:pointer;}
-
-  .contact-note{color:var(--text-muted);font-size:15px;max-width:600px;margin-bottom:28px;}
-  .contact-note strong{color:var(--text-primary);}
-  .contact-row{display:flex;gap:14px;flex-wrap:wrap;}
-  .contact-card{flex:1;min-width:200px;background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:6px;transition:border-color .2s ease;}
-  .contact-card:hover{border-color:var(--accent-cyan);}
-  .contact-label{font-family:var(--mono);font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
-  .contact-value{font-size:15px;font-weight:500;word-break:break-word;}
-
-  footer{padding:28px 0;text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:12px;border-top:1px solid var(--border);scroll-snap-align:start;}
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body class="locked">
 <div class="grid-bg"></div>
@@ -179,31 +18,48 @@
     <div class="terminal-body" id="introBody"></div>
   </div>
 </div>
-<div class="intro-skip" id="introSkip">skip &#8594;</div>
+<div class="intro-actions">
+  <button class="intro-btn friend" id="friendBtn" type="button">&#129309; Make a friend</button>
+</div>
+
+<div class="friend-modal" id="friendModal">
+  <div class="friend-box">
+    <h3>Say hi to Dhanush</h3>
+    <p>Send a quick friend request — it'll open your email app with a message ready to go.</p>
+    <label>Your Name</label>
+    <input id="friendName" placeholder="e.g. Priya">
+    <label>Message (optional)</label>
+    <textarea id="friendMessage" rows="3" placeholder="Hey, I'd love to connect!"></textarea>
+    <div class="friend-box-actions">
+      <button class="btn-send" type="button" onclick="sendFriendRequest()">Send Request</button>
+      <button class="btn-cancel" type="button" id="friendCancel">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <nav>
   <div class="wrap">
     <div class="logo">dhanush<span>.r</span></div>
     <div class="navlinks" id="navlinks">
-      <a href="#hero" data-nav>Home</a>
-      <a href="#about" data-nav>About</a>
-      <a href="#education" data-nav>Education</a>
-      <a href="#skills" data-nav>Skills</a>
-      <a href="#projects" data-nav>Projects</a>
-      <a href="#certifications" data-nav>Certifications</a>
-      <a href="#contact" data-nav>Contact</a>
+      <a href="index.html" data-nav>Home</a>
+      <a href="about.html" data-nav>About</a>
+      <a href="education.html" data-nav>Education</a>
+      <a href="skills.html" data-nav>Skills</a>
+      <a href="projects.html" data-nav>Projects</a>
+      <a href="certifications.html" data-nav>Certifications</a>
+      <a href="contact.html" data-nav>Contact</a>
     </div>
     <button class="navtoggle" id="navtoggle" aria-label="Toggle menu">&#9776;</button>
   </div>
 </nav>
 
-<header class="hero" id="hero">
+<main class="page hero">
   <div class="wrap">
     <div class="eyebrow">3RD YEAR &middot; B.TECH AI &amp; DATA SCIENCE</div>
     <h1>Dhanush R builds systems that<br><span class="accent">read, learn &amp; decide.</span></h1>
     <p class="tagline">Currently developing an AI Resume Analyzer, learning Java, and going deeper into Python &amp; MySQL — one project at a time.</p>
     <div class="hero-cta">
-      <a href="#projects" class="btn btn-primary">View Projects</a>
+      <a href="projects.html" class="btn btn-primary">View Projects</a>
       <a href="https://github.com/DhanushRavi05" target="_blank" class="btn btn-ghost">GitHub &#8599;</a>
     </div>
     <div class="terminal">
@@ -211,164 +67,12 @@
       <div class="terminal-body" id="termBody"></div>
     </div>
   </div>
-</header>
-
-<section id="about">
-  <div class="wrap">
-    <div class="section-label">// 01</div>
-    <h2>About</h2>
-    <p class="about-text">
-      I'm <strong>Dhanush R</strong>, currently in my <strong>3rd year of B.Tech in Artificial Intelligence &amp; Data Science</strong>.
-      I came up through Higher Secondary and a Diploma before this, and now I'm focused on building real things —
-      not just studying theory. My first shipped project, the <strong>AI Resume Analyzer</strong>, is on GitHub.
-      I'm actively picking up <strong>Java</strong>, sharpening <strong>Python</strong>, and I'm already solid in <strong>MySQL</strong>.
-      Always looking for the next thing to learn and the next thing to build.
-    </p>
-  </div>
-</section>
-
-<section id="education">
-  <div class="wrap">
-    <div class="section-label">// 02</div>
-    <h2>Education Path</h2>
-    <div class="timeline">
-      <div class="tl-item"><div class="tl-stage">STAGE 01</div><div class="tl-title">Higher Secondary Education</div><div class="tl-sub">Completed</div></div>
-      <div class="tl-item"><div class="tl-stage">STAGE 02</div><div class="tl-title">Diploma</div><div class="tl-sub">Completed</div></div>
-      <div class="tl-item current"><div class="tl-stage">STAGE 03 &middot; IN PROGRESS</div><div class="tl-title">B.Tech — Artificial Intelligence &amp; Data Science</div><div class="tl-sub">3rd Year</div></div>
-    </div>
-  </div>
-</section>
-
-<section id="skills">
-  <div class="wrap">
-    <div class="section-label">// 03</div>
-    <h2>Skills</h2>
-    <div class="skill-group">
-      <h3>Programming &amp; Tools</h3>
-      <div class="chips"><span class="chip">Java (learning)</span><span class="chip">Python</span><span class="chip">MySQL</span></div>
-    </div>
-    <div class="skill-group">
-      <h3>Languages Spoken</h3>
-      <div class="chips"><span class="chip lang">Tamil</span><span class="chip lang">English</span><span class="chip lang">Malayalam</span><span class="chip lang">Hindi</span><span class="chip lang">Kannada</span></div>
-    </div>
-  </div>
-</section>
-
-<section id="projects">
-  <div class="wrap">
-    <div class="section-label">// 04</div>
-    <h2>Projects</h2>
-    <div class="project-card">
-      <div class="project-top">
-        <div class="project-title">AI Resume Analyzer</div>
-        <div class="project-status">Active Development</div>
-      </div>
-      <p class="project-desc">A tool that reads and evaluates resumes automatically — parsing content and surfacing insights to help understand a candidate's profile at a glance. First major project, built and maintained solo.</p>
-      <div class="project-tags"><span class="tag">Python</span><span class="tag">AI/NLP</span></div>
-      <div class="project-links"><a href="https://github.com/DhanushRavi05" target="_blank">View on GitHub &#8599;</a></div>
-    </div>
-  </div>
-</section>
-
-<section id="certifications">
-  <div class="wrap">
-    <div class="section-label">// 05</div>
-    <h2>Certifications</h2>
-    <div class="cert-group">
-      <div class="cert-subhead">Courses Completed</div>
-      <div class="cert-grid" id="certGridCourse"></div>
-    </div>
-    <div class="cert-group">
-      <div class="cert-subhead">Internships</div>
-      <div class="cert-grid" id="certGridIntern"></div>
-    </div>
-
-    <div class="owner-zone">
-      <button id="ownerToggle" class="owner-link" type="button">Owner? Add a certificate</button>
-      <div id="ownerPanel" class="owner-panel">
-        <div id="keyGate">
-          <label>Owner Key</label>
-          <input type="password" id="ownerKey" placeholder="Paste your owner key">
-          <button type="button" class="btn-owner" onclick="unlockOwner()">Unlock</button>
-          <div class="owner-status" id="keyStatus"></div>
-        </div>
-        <div id="uploadForm" style="display:none;">
-          <label>Certificate Name</label>
-          <input id="certName" placeholder="e.g. Python for Everybody">
-          <label>Issued By</label>
-          <input id="certIssuer" placeholder="e.g. Coursera / Company Name">
-          <label>Category</label>
-          <select id="certCategory">
-            <option value="course">Course Completed</option>
-            <option value="internship">Internship</option>
-          </select>
-          <label>Year</label>
-          <input id="certYear" placeholder="e.g. 2026">
-          <label>Certificate Image or PDF</label>
-          <input type="file" id="certFile" accept="image/*,.pdf">
-          <button type="button" class="btn-owner" onclick="uploadCertificate()" id="uploadBtn">Upload Certificate</button>
-          <div class="owner-status" id="uploadStatus"></div>
-          <button type="button" class="owner-logout" onclick="ownerLogout()">Log out of owner mode on this device</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="contact">
-  <div class="wrap">
-    <div class="section-label">// 06</div>
-    <h2>Contact</h2>
-    <p class="contact-note">Open to <strong>internships, collaborations, and project partnerships</strong>. If something here caught your interest, reach out directly — email works best.</p>
-    <div class="contact-row">
-      <a class="contact-card" href="mailto:dhanushravi1485@gmail.com?subject=Let's connect">
-        <span class="contact-label">Email</span><span class="contact-value">dhanushravi1485@gmail.com</span>
-      </a>
-      <a class="contact-card" href="https://github.com/DhanushRavi05" target="_blank">
-        <span class="contact-label">GitHub</span><span class="contact-value">github.com/DhanushRavi05</span>
-      </a>
-      <a class="contact-card" href="https://www.instagram.com/iamdhanushhere" target="_blank">
-        <span class="contact-label">Instagram</span><span class="contact-value">@iamdhanushhere</span>
-      </a>
-    </div>
-  </div>
-</section>
+</main>
 
 <footer>&copy; 2026 Dhanush R &middot; Built &amp; maintained solo</footer>
 
+<script src="main.js"></script>
 <script>
-  const introLines = [
-    {html:'<span class="prompt">$</span> <span class="key">./boot_portfolio.sh</span>'},
-    {html:'<span class="key">loading</span>       : <span class="val">education, skills, projects</span>'},
-    {html:'<span class="key">candidate</span>     : <span class="val">Dhanush R</span>'},
-    {html:'<span class="key">status</span>        : <span class="val">initializing UI</span> <span class="tag">[ok]</span>'},
-    {html:'<span class="prompt">$</span> ready<span class="cursor"></span>'}
-  ];
-  const introBody = document.getElementById('introBody');
-  const introOverlay = document.getElementById('introOverlay');
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function typeInto(container, lines, gap, onDone){
-    lines.forEach((l,i)=>{
-      const div = document.createElement('div');
-      div.className='line';
-      div.innerHTML = l.html;
-      div.style.animationDelay = reduced ? '0s' : (i*gap)+'s';
-      container.appendChild(div);
-    });
-    const total = reduced ? 0 : lines.length*gap*1000 + 500;
-    setTimeout(onDone, total);
-  }
-
-  function dismissIntro(){
-    introOverlay.classList.add('fade-out');
-    document.body.classList.remove('locked');
-    setTimeout(()=>{ introOverlay.style.display='none'; }, 650);
-  }
-
-  document.getElementById('introSkip').addEventListener('click', dismissIntro);
-  typeInto(introBody, introLines, 0.32, dismissIntro);
-
   const heroLines = [
     {html:'<span class="prompt">$</span> <span class="key">analyzing_candidate</span> --profile'},
     {html:'<span class="key">name</span>       : <span class="val">Dhanush R</span>'},
@@ -379,174 +83,9 @@
     {html:'<span class="key">languages</span>  : <span class="val">5 spoken</span> <span class="tag">TA/EN/ML/HI/KN</span>'},
     {html:'<span class="prompt">$</span> status: <span class="val">open to opportunities</span><span class="cursor"></span>'}
   ];
-  typeInto(document.getElementById('termBody'), heroLines, 0.28, ()=>{});
-
-  document.getElementById('navtoggle').addEventListener('click', function(){
-    document.getElementById('navlinks').classList.toggle('open');
+  document.addEventListener('DOMContentLoaded', ()=>{
+    typeInto(document.getElementById('termBody'), heroLines, 0.28, ()=>{});
   });
-  document.querySelectorAll('#navlinks a').forEach(a=>{
-    a.addEventListener('click', ()=> document.getElementById('navlinks').classList.remove('open'));
-  });
-
-  const navLinks = document.querySelectorAll('[data-nav]');
-  const sections = document.querySelectorAll('section, header');
-  const observer = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        const id = entry.target.getAttribute('id');
-        navLinks.forEach(l=> l.classList.toggle('active', l.getAttribute('href') === '#'+id));
-      }
-    });
-  }, {threshold:0.5});
-  sections.forEach(s=> observer.observe(s));
-
-  fetch('certificates.json').then(r=>r.json()).then(renderCerts).catch(()=>renderCerts([]));
-
-  // ===== owner-only certificate upload =====
-  const GH_OWNER = 'DhanushRavi05';
-  const GH_REPO = 'DhanushRavi05.github.io';
-  let ownerKey = localStorage.getItem('ownerKey') || '';
-
-  const ownerToggle = document.getElementById('ownerToggle');
-  const ownerPanel = document.getElementById('ownerPanel');
-  const keyGate = document.getElementById('keyGate');
-  const uploadFormEl = document.getElementById('uploadForm');
-  const keyStatus = document.getElementById('keyStatus');
-
-  ownerToggle.addEventListener('click', async ()=>{
-    ownerPanel.classList.toggle('open');
-    if(ownerPanel.classList.contains('open') && ownerKey){
-      setStatus(keyStatus,'loading','Checking saved key...');
-      const ok = await validateKey(ownerKey);
-      if(ok){
-        keyGate.style.display='none';
-        uploadFormEl.style.display='block';
-        setStatus(keyStatus,'','');
-      } else {
-        localStorage.removeItem('ownerKey');
-        ownerKey='';
-        setStatus(keyStatus,'err','Saved key no longer works, enter it again.');
-      }
-    }
-  });
-
-  function setStatus(el, type, msg){
-    el.className = 'owner-status' + (type ? ' '+type : '');
-    el.textContent = msg;
-  }
-
-  async function validateKey(key){
-    try{
-      const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/certificates.json`, { headers:{ Authorization:`token ${key}` } });
-      return res.ok;
-    }catch(e){ return false; }
-  }
-
-  window.unlockOwner = async function(){
-    const input = document.getElementById('ownerKey').value.trim();
-    if(!input){ setStatus(keyStatus,'err','Paste your owner key first.'); return; }
-    setStatus(keyStatus,'loading','Checking...');
-    const ok = await validateKey(input);
-    if(ok){
-      ownerKey = input;
-      localStorage.setItem('ownerKey', input);
-      keyGate.style.display='none';
-      uploadFormEl.style.display='block';
-      setStatus(keyStatus,'','');
-    } else {
-      setStatus(keyStatus,'err','That key did not work. Check it and try again.');
-    }
-  };
-
-  window.ownerLogout = function(){
-    localStorage.removeItem('ownerKey');
-    ownerKey='';
-    uploadFormEl.style.display='none';
-    keyGate.style.display='block';
-    document.getElementById('ownerKey').value='';
-    setStatus(keyStatus,'','Logged out on this device.');
-  };
-
-  function fileToBase64(file){
-    return new Promise((resolve,reject)=>{
-      const reader = new FileReader();
-      reader.onload = ()=> resolve(reader.result.split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  window.uploadCertificate = async function(){
-    const name = document.getElementById('certName').value.trim();
-    const issuer = document.getElementById('certIssuer').value.trim();
-    const category = document.getElementById('certCategory').value;
-    const year = document.getElementById('certYear').value.trim();
-    const file = document.getElementById('certFile').files[0];
-    const uploadStatus = document.getElementById('uploadStatus');
-    const btn = document.getElementById('uploadBtn');
-
-    if(!name || !issuer || !year){
-      setStatus(uploadStatus,'err','Name, issuer and year are required.');
-      return;
-    }
-
-    btn.disabled = true;
-    try{
-      let link = '';
-      if(file){
-        setStatus(uploadStatus,'loading','Uploading file...');
-        const base64 = await fileToBase64(file);
-        const safeName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
-        const filePath = `certs/${safeName}`;
-        const putFileRes = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${filePath}`, {
-          method:'PUT',
-          headers:{ Authorization:`token ${ownerKey}`, 'Content-Type':'application/json' },
-          body: JSON.stringify({ message:`Add certificate file: ${file.name}`, content: base64, branch:'main' })
-        });
-        if(!putFileRes.ok){ const e = await putFileRes.json().catch(()=>({})); throw new Error(e.message || 'File upload failed'); }
-        link = filePath;
-      }
-
-      setStatus(uploadStatus,'loading','Saving certificate details...');
-      const getRes = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/certificates.json`, { headers:{ Authorization:`token ${ownerKey}` } });
-      if(!getRes.ok) throw new Error('Could not read certificates.json');
-      const fileData = await getRes.json();
-      const currentContent = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
-      currentContent.push({ name, issuer, category, year, link });
-      const newContentB64 = btoa(unescape(encodeURIComponent(JSON.stringify(currentContent, null, 2))));
-      const putRes = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/certificates.json`, {
-        method:'PUT',
-        headers:{ Authorization:`token ${ownerKey}`, 'Content-Type':'application/json' },
-        body: JSON.stringify({ message:`Add certificate: ${name}`, content:newContentB64, sha:fileData.sha, branch:'main' })
-      });
-      if(!putRes.ok){ const e = await putRes.json().catch(()=>({})); throw new Error(e.message || 'Update failed'); }
-
-      setStatus(uploadStatus,'ok','Added! It will appear on this page within a minute (refresh to see it).');
-      document.getElementById('certName').value='';
-      document.getElementById('certIssuer').value='';
-      document.getElementById('certYear').value='';
-      document.getElementById('certFile').value='';
-    }catch(err){
-      setStatus(uploadStatus,'err','Error: ' + err.message);
-    }finally{
-      btn.disabled = false;
-    }
-  };
-
-  function renderCerts(certs){
-    const courses = certs.filter(c=> c.category !== 'internship');
-    const interns = certs.filter(c=> c.category === 'internship');
-    document.getElementById('certGridCourse').innerHTML = courses.length ? courses.map(certCard).join('') : '<div class="cert-empty">No course certificates added yet.</div>';
-    document.getElementById('certGridIntern').innerHTML = interns.length ? interns.map(certCard).join('') : '<div class="cert-empty">No internship certificates added yet.</div>';
-  }
-
-  function certCard(c){
-    return `<div class="cert-card">
-      <div class="cert-name">${c.name}</div>
-      <div class="cert-issuer">${c.issuer}</div>
-      <div class="cert-year">${c.year}${c.link ? ' &middot; <a class="cert-link" href="'+c.link+'" target="_blank">view</a>' : ''}</div>
-    </div>`;
-  }
 </script>
 </body>
 </html>

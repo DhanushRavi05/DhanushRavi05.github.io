@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certifications — Dhanush R</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="grid-bg"></div>
+<nav>
+  <div class="wrap">
+    <div class="logo">dhanush<span>.r</span></div>
+    <div class="navlinks" id="navlinks">
+      <a href="index.html" data-nav>Home</a>
+      <a href="about.html" data-nav>About</a>
+      <a href="education.html" data-nav>Education</a>
+      <a href="skills.html" data-nav>Skills</a>
+      <a href="projects.html" data-nav>Projects</a>
+      <a href="certifications.html" data-nav>Certifications</a>
+      <a href="contact.html" data-nav>Contact</a>
+    </div>
+    <button class="navtoggle" id="navtoggle" aria-label="Toggle menu">&#9776;</button>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="wrap">
+    <div class="section-label">// 05</div>
+    <h2>Certifications</h2>
+    <div class="cert-group">
+      <div class="cert-subhead">Courses Completed</div>
+      <div class="cert-grid" id="certGridCourse"></div>
+    </div>
+    <div class="cert-group">
+      <div class="cert-subhead">Internships</div>
+      <div class="cert-grid" id="certGridIntern"></div>
+    </div>
+
+    <div class="owner-zone">
+      <button id="ownerToggle" class="owner-link" type="button">Owner? Add a certificate</button>
+      <div id="ownerPanel" class="owner-panel">
+        <div id="keyGate">
+          <label>Owner Key</label>
+          <input type="password" id="ownerKey" placeholder="Paste your owner key">
+          <button type="button" class="btn-owner" onclick="unlockOwner()">Unlock</button>
+          <div class="owner-status" id="keyStatus"></div>
+        </div>
+        <div id="uploadForm" style="display:none;">
+          <label>Certificate Name</label>
+          <input id="certName" placeholder="e.g. Python for Everybody">
+          <label>Issued By</label>
+          <input id="certIssuer" placeholder="e.g. Coursera / Company Name">
+          <label>Category</label>
+          <select id="certCategory">
+            <option value="course">Course Completed</option>
+            <option value="internship">Internship</option>
+          </select>
+          <label>Year</label>
+          <input id="certYear" placeholder="e.g. 2026">
+          <label>Certificate Image or PDF</label>
+          <input type="file" id="certFile" accept="image/*,.pdf">
+          <button type="button" class="btn-owner" onclick="uploadCertificate()" id="uploadBtn">Upload Certificate</button>
+          <div class="owner-status" id="uploadStatus"></div>
+          <button type="button" class="owner-logout" onclick="ownerLogout()">Log out of owner mode on this device</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>&copy; 2026 Dhanush R &middot; Built &amp; maintained solo</footer>
+<script src="main.js"></script>
+</body>
+</html>

@@ -1,38 +1,55 @@
-# Dhanush R — Portfolio Website (v3)
+# Dhanush R — Portfolio Website (v4 — multi-page)
 
 ## What changed
-Certificate upload is now built **directly into the main site** — no separate admin page.
-Scroll to the Certifications section and you'll see a small link at the bottom right:
-**"Owner? Add a certificate"**. Only you can actually use it.
+- Every section is now its own real page: `index.html`, `about.html`, `education.html`,
+  `skills.html`, `projects.html`, `certifications.html`, `contact.html`
+- Nav bar links go straight to these pages (not scrolling anchors anymore)
+- Shared design lives in `styles.css` and shared logic in `main.js` — every page pulls from these
+  two files, so you only ever edit one place to change the look or behavior everywhere
+- On the home page, the old "skip" button is now **"🤝 Make a friend"** — clicking it opens a small
+  form (name + optional message), then opens the visitor's email app with a pre-filled friend request
+  addressed to you
+- Certificate upload still works the same way, now on its own `certifications.html` page
 
 ## Files to upload to your repo
-- `index.html` — replaces your old one
-- `certificates.json` — replaces your old one (keep it if you already added certs, don't overwrite)
-- Delete `admin.html` from your repo if it's there — not needed anymore
+Upload **all of these together** (all 10 files):
+```
+index.html
+about.html
+education.html
+skills.html
+projects.html
+certifications.html
+contact.html
+styles.css
+main.js
+certificates.json
+```
 
-## How the upload option works
-1. Scroll to **Certifications** on your live site
-2. Click **"Owner? Add a certificate"** (bottom right, small text — easy to miss on purpose, so it doesn't look like a normal visitor button)
-3. First time only: paste your **Owner Key** — this is the same GitHub token you already generated
-   (starts with `github_pat_...`). Click **Unlock**.
-4. Your browser remembers this key after that, only on this device — you won't need to paste it again
-   next time, even after closing the tab. Click **"Log out of owner mode on this device"** if you ever
-   want to clear it (e.g. before letting someone else use this computer).
-5. Fill in Certificate Name, Issued By, Category (Course/Internship), Year
-6. Click the **file box** and pick the certificate image or PDF from your computer
-7. Click **Upload Certificate**
-8. Within a minute, refresh the page — it appears live for everyone to see
+⚠️ **Important**: if you already added real certificates before, **don't overwrite** your existing
+`certificates.json` — keep the one with your data instead of this empty one.
 
-## Why only you can use it
-The button is there for anyone to see, but clicking "Unlock" without the correct key does nothing —
-GitHub itself rejects any request that doesn't carry your token. Nobody else has that key, so nobody
-else can add or change anything, even if they find the button.
+Also delete any of these old files from your repo if still there (no longer used):
+`admin.html`
 
-## If you ever need a new Owner Key
-1. Go to https://github.com/settings/tokens?type=beta
-2. Generate new token (fine-grained) → Repository access: only `DhanushRavi05.github.io`
-3. Permissions → Contents → Read and write → Generate
-4. Copy the new key and paste it into the site's upload panel like before
+## How to upload (same as before)
+1. Go to `github.com/DhanushRavi05/DhanushRavi05.github.io`
+2. **Add file → Upload files**
+3. Drag and drop all the files listed above
+4. Commit changes
+5. Wait 1–2 minutes, then visit `https://dhanushravi05.github.io`
+
+## How "Make a friend" works
+- Visitor clicks **🤝 Make a friend** on your homepage
+- A small popup asks for their name and an optional message
+- Clicking **Send Request** opens their email app with a message already written, addressed to
+  `dhanushravi1485@gmail.com` — they just hit send
+- No setup needed on your end, it uses their own email app
+
+## How certificate upload still works
+Same as before — go to `certifications.html`, click **"Owner? Add a certificate"**, unlock with your
+GitHub owner key (same one you already created), then upload the certificate image/PDF directly.
+Full details in the previous instructions still apply.
 
 ## Want a .com domain later
 `.com` domains cost around ₹700–900/year. Once bought, you can point it to this same free
